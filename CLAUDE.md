@@ -1,1 +1,0 @@
-/home/demetris/Dropbox/Claude/nobot.md
