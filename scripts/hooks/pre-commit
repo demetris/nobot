@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+#
+# pre-commit — Validate Apache rewrite rules in nobot .conf files
+#
+# Checks for:
+#   1. Overskipping: S=N where N > remaining RewriteRule lines in the file
+#   2. Stray OR flag: RewriteCond with [OR] immediately before a RewriteRule
+#
+# Usage:
+#   scripts/hooks/pre-commit [directory]
+#
+# The directory defaults to “apache/” relative to the repo root.
+#
+# Install as pre-commit hook:
+#   git config core.hooksPath scripts/hooks
+#
+
+set -euo pipefail
+
+#
+# Resolve repo root (so the script works from any working directory)
+#
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+CONF_DIR="${1:-$REPO_ROOT/apache}"
+
+errors=0
+
+check_overskip() {
+  local file="$1"
+  local total_rules
+  local line_number=0
+  local rule_index=0
+  local -a rule_lines=()
+
+  #
+  # First pass: Collect line numbers of all RewriteRule lines
+  #
+  while IFS= read -r line; do
+    line_number=$((line_number + 1))
+    if [[ "$line" =~ ^[[:space:]]*RewriteRule[[:space:]] ]]; then
+      rule_lines+=("$line_number")
+    fi
+  done < "$file"
+
+  total_rules=${#rule_lines[@]}
+
+  #
+  # Second pass: For each RewriteRule with S=N, check if N overskips
+  #
+  for i in "${!rule_lines[@]}"; do
+    local ln="${rule_lines[$i]}"
+    local content
+    content="$(sed -n "${ln}p" "$file")"
+
+    if [[ "$content" =~ S=([0-9]+) ]]; then
+      local skip_n="${BASH_REMATCH[1]}"
+      local remaining=$(( total_rules - i - 1 ))
+
+      if (( skip_n > remaining )); then
+        printf "ERROR [overskip] %s:%d — S=%d but only %d RewriteRule(s) remain in file\n" \
+          "$file" "$ln" "$skip_n" "$remaining"
+        errors=$((errors + 1))
+      fi
+    fi
+  done
+}
+
+check_stray_or() {
+  local file="$1"
+  local prev_is_cond_with_or=0
+  local prev_line_number=0
+  local line_number=0
+
+  while IFS= read -r line; do
+    line_number=$((line_number + 1))
+
+    #
+    # Skip blank lines and comments
+    #
+    if [[ "$line" =~ ^[[:space:]]*$ ]] || [[ "$line" =~ ^[[:space:]]*# ]]; then
+      continue
+    fi
+
+    if [[ "$line" =~ ^[[:space:]]*RewriteRule[[:space:]] ]]; then
+      if (( prev_is_cond_with_or )); then
+        printf "ERROR [stray OR] %s:%d — RewriteCond has [OR] but is followed by RewriteRule at line %d\n" \
+          "$file" "$prev_line_number" "$line_number"
+        errors=$((errors + 1))
+      fi
+      prev_is_cond_with_or=0
+    elif [[ "$line" =~ ^[[:space:]]*RewriteCond[[:space:]] ]]; then
+      #
+      # Check if this RewriteCond has OR in its flags
+      #
+      if [[ "$line" =~ \[.*OR.*\] ]]; then
+        prev_is_cond_with_or=1
+        prev_line_number="$line_number"
+      else
+        prev_is_cond_with_or=0
+      fi
+    else
+      #
+      # Any other directive resets the state
+      #
+      prev_is_cond_with_or=0
+    fi
+  done < "$file"
+}
+
+#
+# Main
+#
+if [[ ! -d "$CONF_DIR" ]]; then
+  printf "Error: directory not found: %s\n" "$CONF_DIR" >&2
+  exit 1
+fi
+
+for file in "$CONF_DIR"/*.conf; do
+  [[ -f "$file" ]] || continue
+  check_overskip "$file"
+  check_stray_or "$file"
+done
+
+if (( errors > 0 )); then
+  printf "\n%d error(s) found.\n" "$errors"
+  exit 1
+else
+  printf "All checks passed.\n"
+  exit 0
+fi

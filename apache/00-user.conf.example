@@ -1,0 +1,55 @@
+##  ----    ----    ----    ----    ----    ----    ----    ----    ----    ----    ----    ----  ##
+##  USER-DEFINED WHITELIST                                                                        ##
+##                                                                                                ##
+##                                                                                                ##
+##  DESCRIPTION                                                                                   ##
+##                                                                                                ##
+##  This is an example configuration file.                                                        ##
+##  Copy this to 00-user.conf and customize it for your needs.                                    ##
+##                                                                                                ##
+##  You can use this file to set the NOBOT_ALLOWED_BY_USER environment variable.                  ##
+##  Requests with this variable set skip all nobot detection rules.                               ##
+##                                                                                                ##
+##  - Use NOBOT_ALLOWED_BY_USER for wanted requests that nobot denies by default.                 ##
+##  - Use NOBOT_ALLOWED_BY_USER for requests that nobot does not deny                             ##
+##    but it also does not make sense to waste time checking since they are trusted.              ##
+##                                                                                                ##
+##  ----    ----    ----    ----    ----    ----    ----    ----    ----    ----    ----    ----  ##
+
+
+##  - - - - - - - - - - - - - - - - - ---- - - - - - - - - - - - - - - - - - - -
+##
+##  IF
+##    Any of the rewrite conditions match
+##  THEN
+##    Set NOBOT_ALLOWED_BY_USER=1
+##
+##  - - - - - - - - - - - - - - - - - ---- - - - - - - - - - - - - - - - - - - -
+
+##
+##  Whitelist by User-Agent
+##
+
+RewriteCond %{HTTP_USER_AGENT}  "=Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)"                       [OR]
+RewriteCond %{HTTP_USER_AGENT}  "=Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)"                   [OR]
+
+##
+##  Whitelist by address or address range
+##
+
+# RewriteCond %{REMOTE_ADDR} "^192\.168\."                                        [OR]
+# RewriteCond %{REMOTE_ADDR} "^10\."                                              [OR]
+# RewriteCond %{REMOTE_ADDR} "=1.2.3.4"                                           [OR]
+
+##
+##  Whitelist by reverse DNS hostname
+##
+##  The following rewrite conditions only do something if HostnameLookups is On in the Apache config.
+##  Note that that setting is expensive. Consider using a local DNS cache if you need DNS lookups.
+##
+
+RewriteCond %{REMOTE_HOST} "\.googlebot\.com$"                                  [OR]
+RewriteCond %{REMOTE_HOST} "\.pinterest\.com$"                                  [OR]
+RewriteCond %{REMOTE_HOST} "\.search\.msn\.com$"
+
+RewriteRule .* - [E=NOBOT_ALLOWED_BY_USER:1]

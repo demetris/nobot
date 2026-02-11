@@ -1,0 +1,23 @@
+#
+# ROBOT POLICY
+#
+# This website is for humans.
+# Uninvited bots that help humans discover and access this website are welcome.
+# Uninvited bots that do not help in that are blocked.
+#
+# Specific instructions are added to this file only for bots that are known to respect robots.txt.
+# We do not add specific instructions for other bots.
+#
+
+#
+# DISALLOW
+#
+
+User-agent: Google-Extended
+Disallow: /
+
+#
+# SITEMAP
+#
+
+Sitemap: <SITEMAP_XML_URI>
