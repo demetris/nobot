@@ -3,6 +3,13 @@ nobot releases and changes
 ================================================================================
 
 
+0.2.1 (2026-02-12)
+----------------------------------------
+
+- Moved Safari to second place, above Edge and Firefox, in browser identification
+  - Why: Safari has more market share than Edge and Firefox combined in all continents
+
+
 0.2.0 (2026-02-12)
 ----------------------------------------
 
