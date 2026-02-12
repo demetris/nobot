@@ -1,6 +1,5 @@
 
-nobot is a stateless detection system against low-effort bots
-that consists of a set of configuration modules for Apache 2.4.
+nobot is a detection system for low-effort bots that consists of a set of configuration modules for Apache 2.4.
 
 It detects and blocks bots by looking for discrepancies between:
 
@@ -60,11 +59,11 @@ The above set of modules should be safe to include in any Apache configuration,
 to the extent that anything in nobot can be said to be safe of course.
 
 If you want to include more modules, look at the next two sections,
-and also read the documentation at the file-level comments of each module.
+and also read the documentation in the file header of each module.
 
 **Do not** just include everything!
 
-For a minimal setup, to just see how nobot works with your setup, do this:
+For a **minimal** setup, to just see how nobot works with your setup, do this:
 
 ```apache
 <IfDefine !NOBOT_ROOT>
@@ -129,7 +128,7 @@ Modules that need special care (do NOT just include those)
 ### Opinionated modules
 
 As the name says, these are the opinionated nobot modules.
-Do **not** include any of them unless you have reviewed them and know what they block.
+Do **not** include opinionated modules unless you have reviewed them and know what they block.
 
 ### Configuration-dependent modules
 
@@ -143,11 +142,13 @@ They are three:
 
 Only use the first two if HTTP/2 is enabled on the server!
 
+Only use the second if the site is not WordPress.
+
 Only use the third if the server requires TLS 1.3, that is, if TLS 1.2 or earlier are **not** enabled!
 
 ### bot-impersonators module
 
-Most detection in nobot will work well indefinitely if it works well now.
+Most detection in nobot will work well indefinitely if it works well now:
 
 A Safari 16 that sends *gzip, deflate, br, zstd* as Accept-Encoding will be as wrong in five years as it is now.
 
@@ -155,7 +156,7 @@ A Firefox 12 that connects with HTTP/2 will be as unbelievable in five years as 
 
 A Chrome 60 that has managed to connect to a web server that requires TLS 1.3 is a perfect impossibility.
 
-Some nobot rules though may break if external things change in the future.
+Some nobot rules though may break if external things change.
 This is true for the [rules that block bot impersonators based on whitelists](apache/80-bot-impersonators.conf).
 If, for example, Google starts using a range that is not whitelisted in nobot, its bots will get blocked by the rules in the 80 module.
 
@@ -164,7 +165,7 @@ Be aware of that.
 ### outdated-browsers module
 
 The purpose of [the outdated-browsers module](apache/98-outdated-browsers.conf) is to catch evading bots, not just block old browsers,
-but it does block a lot of old browsers and it can claim innocent victims (real humans using those browsers).
+but it does block a lot of old browsers, and it can claim innocent victims (real humans using those browsers).
 
 Only include the outdated-browsers module if you understand what it does and if you agree with its approach.
 
@@ -186,6 +187,11 @@ You can whitelist requests before they get to nobot rules by setting the `NOBOT_
 
 Whitelisted requests skip all nobot rules. They cannot be blocked by nobot.
 
+Whitelisting is useful for two cases:
+
+1.  For requests that are blocked by a nobot module you use
+2.  For requests that you trust and that it doesn’t make sense wasting time to check
+
 
 
 Debugging nobot
@@ -203,9 +209,9 @@ LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Acce
 Client error codes used in nobot
 ----------------------------------------
 
-nobot (ab)uses three client error codes for the purpose of tagging the problematic requests it denies.
+nobot (ab)uses three client error codes for the purpose of tagging the requests it denies.
 
-You can use the three codes to automatically ban the addresses of the problematic requests,
+You can use the three codes to automatically ban the addresses of the requests,
 or to filter out the bad bots in your server-side analytics.
 Or for anything else you might think of.
 
@@ -238,13 +244,13 @@ By its nature–stateless detection based on what the web server can know in the
 
 The bots that evade detection in nobot fall into two main categories:
 
-**A**. Well-made bad bots that cannot execute JavaScript. For those you can use a system like [Anubis](https://anubis.techaro.lol/). It stops all of them.
+**A**. Well-made bad bots that can’t run JavaScript. For those you can use a system like [Anubis](https://anubis.techaro.lol/). It stops all of them.
 
-**B**. Well-made bad bots that can execute JavaScript. Those use real browser engines rather than HTTP client libraries disguised as browsers.
+**B**. Well-made bad bots that can run JavaScript. Those use real browser engines rather than HTTP client libraries disguised as browsers.
 
 For purposes of blocking, the **B** bots fall into two subcategories:
 
-**B1**. Well-made bad bots that come from ASNs that send only bad traffic. Such ASNs are safe to block at the firewall level.
+**B1**. Well-made bad bots from ASNs that send only bad traffic. Such ASNs are safe to block at the firewall level.
 [ipverse/as-ip-blocks](https://github.com/ipverse/as-ip-blocks) is a well-maintained project that helps with that.
 
 After that point it gets difficult, as the complexity and cost increase:
@@ -261,10 +267,11 @@ For those cases you need to do expensive work or/and pay for expensive services.
 robots.txt
 ----------------------------------------
 
-Relying on robots.txt is problematic these days. It entails an unsustainable cognitive load.
+Relying on robots.txt has become problematic. It entails an unsustainable cognitive load.
 You cannot possibly know or aspire to know which ones of all the bots respect and which ones do not respect robots.txt.
 
-For my personal sites I just block the bots I don’t want and use robots.txt only for bots that are known to respect it.
+For my personal sites I just block the bots I don’t want (the opinionated modules in nobot)
+and use robots.txt only for bots that are known to respect it.
 [My robots.txt template](robots-txt/robots.txt).
 
 
@@ -301,12 +308,12 @@ Why nobot
 nobot started as an experiment and is still one to a large extent:
 
 I wanted to see if I can tag and block a sufficient amount of annoying and lying bots
-based on what the web server knows in the context of a single HTTP request.
+based solely on what the web server knows in the context of a single HTTP request.
 
-This type of stateless detection has two main advantages:
+This type of server-side detection has two main advantages:
 
 1.  It is transparent to the user (no front-end challenges)
-2.  It works without an extra application (proxy) in the stack
+2.  It works without an extra application in the stack
 
 The question is: Does it work well enough?
 
