@@ -3,11 +3,16 @@ nobot releases and changes
 ================================================================================
 
 
-0.2.1 (2026-02-12)
+0.2.1 (2026-02-13)
 ----------------------------------------
 
-- Moved Safari to second place, above Edge and Firefox, in browser identification
-  - Why: Safari has more market share than Edge and Firefox combined in all continents
+-   Moved Safari to second place, above Edge and Firefox, in browser identification
+    -   Why: Safari has more market share than Edge and Firefox combined in all continents
+-   Tightened regular expressions for CHROME_0_TO_... ranges
+-   Added documentation to the file header of the base module
+-   Added more patterns, conditions, rules, and skips
+-   Added missing resource to the README
+
 
 
 0.2.0 (2026-02-12)
