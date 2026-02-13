@@ -282,6 +282,7 @@ Resources
 
 Resources that have been especially useful for working on nobot:
 
+-   [Apache HTTP Server Documentation](https://httpd.apache.org/docs/)
 -   [Can I use...](https://caniuse.com/)
 -   [go-httpbin(1): HTTP Client Testing Service](https://httpbingo.org/)
 -   [IPinfo](https://ipinfo.io/)
