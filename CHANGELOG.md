@@ -3,6 +3,16 @@ nobot releases and changes
 ================================================================================
 
 
+0.3.0 (2026-02-15)
+----------------------------------------
+
+-   Removed dependency on Apache TLS configuration from the unexpected-tls-version module:
+    -   The module is now safe to include regardless of TLS configuration
+-   Tightened regular expressions for Samsung Internet 10 and newer
+-   Added more patterns, conditions, and rules
+
+
+
 0.2.1 (2026-02-13)
 ----------------------------------------
 
