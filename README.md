@@ -4,7 +4,7 @@ nobot is a detection system for low-effort bots that consists of a set of config
 It detects and blocks bots by looking for discrepancies between:
 
 1.  what the agent of the HTTP request claims to be, and
-2.  what the signature of the HTTP request header says about the agent.
+2.  what the HTTP request header says about the agent.
 
 For example, it denies requests that are made by an agent identifying as Chrome 144
 but look nothing like the requests Chrome 144 really makes.
@@ -13,7 +13,7 @@ nobot also has modules that deny requests by bots that identify themselves hones
 These modules use no detection other than looking at the User-Agent string.
 They are the *opinionated* part of nobot.
 
-nobot is fully modular. You can use a little or as much as you want –
+nobot is fully modular. You can use as little or as much as you want –
 anything from two modules to the whole set.
 
 
@@ -43,6 +43,7 @@ RewriteEngine On
 Include ${NOBOT_ROOT}/apache/01-base.conf
 Include ${NOBOT_ROOT}/apache/40-unexpected-http-10.conf
 Include ${NOBOT_ROOT}/apache/42-unexpected-http-2.conf
+Include ${NOBOT_ROOT}/apache/50-unexpected-tls-version.conf
 Include ${NOBOT_ROOT}/apache/60-unexpected-header-fields.conf
 Include ${NOBOT_ROOT}/apache/61-unexpected-user-agent.conf
 Include ${NOBOT_ROOT}/apache/62-unexpected-referer.conf
@@ -103,7 +104,7 @@ nobot Apache configuration modules
 | [41-unexpected-http-11](apache/41-unexpected-http-11.conf)                             | Unexpected HTTP/1.1 + more signals†                     |   | Y |   | 451       |
 | [42-unexpected-http-2](apache/42-unexpected-http-2.conf)                               | Unexpected HTTP/2                                       |   | Y |   | 451       |
 | [45-unexpected-http-11-for-non-wp](apache/45-unexpected-http-11-for-non-wp.conf)       | Unexpected HTTP/1.1 for a non-WordPress site†           |   | Y |   | 451       |
-| [50-unexpected-tls-version](apache/50-unexpected-tls-version.conf)                     | Unexpected TLS version†                                 |   | Y |   | 451       |
+| [50-unexpected-tls-version](apache/50-unexpected-tls-version.conf)                     | Unexpected TLS version                                  |   | Y |   | 451       |
 | [60-unexpected-header-fields](apache/60-unexpected-header-fields.conf)                 | Unexpected header fields                                |   | Y |   | 451       |
 | [61-unexpected-user-agent](apache/61-unexpected-user-agent.conf)                       | Unexpected UA (made-up or malformed)                    |   | Y |   | 451       |
 | [62-unexpected-referer](apache/62-unexpected-referer.conf)                             | Unexpected Referer                                      |   | Y |   | 451       |
@@ -114,13 +115,15 @@ nobot Apache configuration modules
 | [67-unexpected-fetch-metadata](apache/67-unexpected-fetch-metadata.conf)               | Unexpected Sec-Fetch-\* fields                          |   | Y |   | 451       |
 | [70-unexpected-other](apache/70-unexpected-other.conf)                                 |                                                         |   | Y |   | 451       |
 | [80-bot-impersonators](apache/80-bot-impersonators.conf)                               | Bots that impersonate other bots‡                       |   | Y |   | 451       |
-| [98-outdated-browsers](apache/98-outdated-browsers.conf)                               | Old browsers that bots like to impersonate              |   |   | Y | 426       |
+| [98-outdated-browsers](apache/98-outdated-browsers.conf)                               | Old browsers that bots like to impersonate              | Y |   | Y | 426       |
 
 NOTES
 
 `*` Can be used to whitelist requests. See `NOBOT_ALLOWED_BY_USER` section below.  
 `†` Module depends on server configuration. See section below.  
 `‡` Module may start giving false positives if left unmaintained. See section below.
+
+
 
 Modules that need special care (do NOT just include those)
 ----------------------------------------
@@ -134,17 +137,14 @@ Do **not** include opinionated modules unless you have reviewed them and know wh
 
 These are modules that should only be included in specific configurations.
 
-They are three:
+They are two:
 
 -   [41-unexpected-http-11](apache/41-unexpected-http-11.conf)
 -   [45-unexpected-http-11-for-non-wp](apache/45-unexpected-http-11-for-non-wp.conf)
--   [50-unexpected-tls-version](apache/50-unexpected-tls-version.conf)
 
-Only use the first two if HTTP/2 is enabled on the server!
+Only use them if HTTP/2 is enabled on the server!
 
 Only use the second if the site is not WordPress.
-
-Only use the third if the server requires TLS 1.3, that is, if TLS 1.2 or earlier are **not** enabled!
 
 ### bot-impersonators module
 
@@ -154,9 +154,9 @@ A Safari 16 that sends *gzip, deflate, br, zstd* as Accept-Encoding will be as w
 
 A Firefox 12 that connects with HTTP/2 will be as unbelievable in five years as it is now.
 
-A Chrome 60 that has managed to connect to a web server that requires TLS 1.3 is a perfect impossibility.
+A Chrome 60 that connects with TLS 1.3 is a perfect impossibility.
 
-Some nobot rules though may break if external things change.
+Some nobot rules may break though if external things change.
 This is true for the [rules that block bot impersonators based on whitelists](apache/80-bot-impersonators.conf).
 If, for example, Google starts using a range that is not whitelisted in nobot, its bots will get blocked by the rules in the 80 module.
 
@@ -201,7 +201,7 @@ For debugging, or if you are just curious to see what module each 402/403/451 re
 you can use a custom log format. Here is the full log format I use for logging everything I want to know about:
 
 ```apache
-LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Accept-Encoding}i\" \"%{Accept-Language}i\" \"%{Sec-CH-UA}i\" \"%{Sec-CH-UA-Mobile}i\" \"%{Sec-CH-UA-Platform}i\" \"%{Sec-Fetch-Dest}i\" \"%{Sec-Fetch-Mode}i\" \"%{Sec-Fetch-Site}i\" \"%{Sec-Fetch-User}i\" \"%{Sec-Purpose}i\" \"%{Priority}i\" \"%{Accept}i\" \"%{X-Forwarded-For}i\" \"%{X-Forwarded-Proto}i\" \"%{X-Real-IP}i\" \"%{Forwarded}i\" \"%{Via}i\" \"%{CF-Worker}i\" \"%{CF-Connecting-IP}i\" \"%{NOBOT}e\"" combined_extra_headers
+LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Accept-Encoding}i\" \"%{Accept-Language}i\" \"%{Sec-CH-UA}i\" \"%{Sec-CH-UA-Mobile}i\" \"%{Sec-CH-UA-Platform}i\" \"%{Sec-Fetch-Dest}i\" \"%{Sec-Fetch-Mode}i\" \"%{Sec-Fetch-Site}i\" \"%{Sec-Fetch-User}i\" \"%{Sec-Purpose}i\" \"%{Priority}i\" \"%{Accept}i\" \"%{X-Forwarded-For}i\" \"%{X-Forwarded-Proto}i\" \"%{X-Real-IP}i\" \"%{Forwarded}i\" \"%{Via}i\" \"%{CF-Worker}i\" \"%{CF-Connecting-IP}i\" \"%{SSL_PROTOCOL}x\" \"%{NOBOT}e\"" combined_extra_headers
 ```
 
 
@@ -225,11 +225,9 @@ If you really wanted access to this specific website, you would have to pay.
 
 Please update your browser.
 
-**NOTE**
-
-If you use the outdated-browsers module (the only one in nobot that responds with 426),
-make sure to include a custom error message or document that explains
-to real humans that they can refresh the page to continue.
+*If you use the outdated-browsers module (the only one in nobot that responds with 426),
+make sure to include a custom error message or document for 426.
+See above for an example.*
 
 ### 451
 
