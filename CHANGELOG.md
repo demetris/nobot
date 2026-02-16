@@ -3,6 +3,14 @@ nobot releases and changes
 ================================================================================
 
 
+0.3.1 (2026-02-16)
+----------------------------------------
+
+-   Disabled bad rule for BingPreview bot in 80-bot-impersonators
+-   Added more patterns, conditions, and rules
+
+
+
 0.3.0 (2026-02-15)
 ----------------------------------------
 
