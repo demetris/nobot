@@ -98,8 +98,8 @@ nobot Apache configuration modules
 | [10-unwanted-bots](apache/10-unwanted-bots.conf)                                       | Honestly named but unwanted bots                        | Y |   |   | 402       |
 | [20-unwanted-tools-bannable](apache/20-unwanted-tools-bannable.conf)                   | Unwanted tools and libraries, special edition           | Y |   |   | 402       |
 | [25-unwanted-tools-forbidden](apache/25-unwanted-tools-forbidden.conf)                 | Unwanted tools and libraries                            | Y |   |   | 403       |
-| [30-unexpected-anonymous](apache/30-unexpected-anonymous.conf)                         | Anonymous requests (empty UA)                           | Y |   |   | 402       |
-| [35-unexpected-anonymous-essentially](apache/35-unexpected-anonymous-essentially.conf) | Essentially anonymous requests                          | Y |   |   | 402       |
+| [30-anonymous](apache/30-anonymous.conf)                                               | Anonymous requests (empty UA)                           | Y |   |   | 402       |
+| [35-anonymous-essentially](apache/35-anonymous-essentially.conf)                       | Essentially anonymous requests                          | Y |   |   | 402       |
 | [40-unexpected-http-10](apache/40-unexpected-http-10.conf)                             | Unexpected HTTP/1.0                                     |   | Y |   | 451       |
 | [41-unexpected-http-11](apache/41-unexpected-http-11.conf)                             | Unexpected HTTP/1.1 + more signals†                     |   | Y |   | 451       |
 | [42-unexpected-http-2](apache/42-unexpected-http-2.conf)                               | Unexpected HTTP/2                                       |   | Y |   | 451       |
