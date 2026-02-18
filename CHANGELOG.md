@@ -3,6 +3,15 @@ nobot releases and changes
 ================================================================================
 
 
+0.4.0 (2026-02-xx)
+----------------------------------------
+
+-   BREAKING: Renamed two modules. Please update your config to use the new names:
+    -   From *30-unexpected-anonymous.conf* to *30-anonymous.conf* 
+    -   From *35-unexpected-anonymous-essentially.conf* to *35-anonymous-essentially.conf* 
+
+
+
 0.3.1 (2026-02-16)
 ----------------------------------------
 
