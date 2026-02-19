@@ -3,12 +3,18 @@ nobot releases and changes
 ================================================================================
 
 
-0.4.0 (2026-02-xx)
+0.4.0 (2026-02-19)
 ----------------------------------------
 
 -   BREAKING: Renamed two modules. Please update your config to use the new names:
-    -   From *30-unexpected-anonymous.conf* to *30-anonymous.conf* 
-    -   From *35-unexpected-anonymous-essentially.conf* to *35-anonymous-essentially.conf* 
+    -   From *30-unexpected-anonymous.conf* to *30-anonymous.conf*
+    -   From *35-unexpected-anonymous-essentially.conf* to *35-anonymous-essentially.conf*
+-   Switched from code 451 to code 402 for modules 20, 30, and 35
+-   Consolidated module 20 from two rules into one
+-   Added browser-supports-HTTP/2 conditions to the skip for module 42
+-   Added NOBOT env var to module 10
+-   Added documentation to env var comments in 01-base.conf
+-   Added more patterns, conditions, and rules
 
 
 
