@@ -16,6 +16,7 @@ They are the *opinionated* part of nobot.
 nobot is fully modular. You can use as little or as much as you want –
 anything from two modules to the whole set.
 
+nobot had been tested with Apache versions 2.4.65 and 2.4.66.
 
 
 Usage
@@ -64,7 +65,7 @@ and also read the documentation in the file header of each module.
 
 **Do not** just include everything!
 
-For a **minimal** setup, to just see how nobot works with your setup, do this:
+For a **minimal** setup, to just see how nobot works with a site of yours, do this:
 
 ```apache
 <IfDefine !NOBOT_ROOT>
@@ -156,7 +157,7 @@ A Firefox 12 that connects with HTTP/2 will be as unbelievable in five years as 
 
 A Chrome 60 that connects with TLS 1.3 is a perfect impossibility.
 
-Some nobot rules may break though if external things change.
+However, some nobot rules may break if external things change.
 This is true for the [rules that block bot impersonators based on whitelists](apache/80-bot-impersonators.conf).
 If, for example, Google starts using a range that is not whitelisted in nobot, its bots will get blocked by the rules in the 80 module.
 
@@ -197,8 +198,10 @@ Whitelisting is useful for two cases:
 Debugging nobot
 ----------------------------------------
 
-For debugging, or if you are just curious to see what module each 402/403/451 response comes from,
-you can use a custom log format. Here is the full log format I use for logging everything I want to know about:
+For debugging, or if you are just curious to see what module each 402/403/451 comes from,
+you can use a custom log format.
+
+This is the full log format I use for logging everything I want to know about:
 
 ```apache
 LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Accept-Encoding}i\" \"%{Accept-Language}i\" \"%{Sec-CH-UA}i\" \"%{Sec-CH-UA-Mobile}i\" \"%{Sec-CH-UA-Platform}i\" \"%{Sec-Fetch-Dest}i\" \"%{Sec-Fetch-Mode}i\" \"%{Sec-Fetch-Site}i\" \"%{Sec-Fetch-User}i\" \"%{Sec-Purpose}i\" \"%{Priority}i\" \"%{Accept}i\" \"%{X-Forwarded-For}i\" \"%{X-Forwarded-Proto}i\" \"%{X-Real-IP}i\" \"%{Forwarded}i\" \"%{Via}i\" \"%{CF-Worker}i\" \"%{CF-Connecting-IP}i\" \"%{SSL_PROTOCOL}x\" \"%{NOBOT}e\"" combined_extra_headers
